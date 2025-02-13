@@ -16,10 +16,7 @@ import HomeScreen from "../app/screens/HomeScreen";
 import OrderScreen from "../app/screens/Order";
 import SettingsScreen from "../app/screens/SettingsScreen";
 import MenuManagement from "../app/screens/MenuManagement";
-import RestaurantDetail from "@/screens/RestaurantDetailScreen";
-import CheckoutScreen from "@/screens/CheckoutScreen";
-import ProfileScreen from "@/screens/ProfileScreen";
-import { Order } from "../types/Orders";
+
 
 // Import your custom FFBottomTab
 import FFBottomTab from "../components/FFBottomTab";
@@ -27,16 +24,15 @@ import PromotionManagement from "../app/screens/PromotionList";
 import CustomerFeedback from "../app/screens/CustomerFeedback";
 
 // Define the param lists for the navigators
-export type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-};
-
 export type RootStackParamList = {
   Main: undefined;
   Auth: undefined;
 };
 
+export type AuthStackParamList = {
+  Login: undefined;
+  Signup: undefined;
+};
 export type MainStackParamList = {
   BottomTabs: undefined;
   Promotions: undefined;
