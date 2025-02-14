@@ -15,6 +15,9 @@ import FFAvatar from "@/src/components/FFAvatar";
 import FFModal from "@/src/components/FFModal";
 import FFText from "@/src/components/FFText";
 import FFInputControl from "@/src/components/FFInputControl";
+import { useDispatch, useSelector } from "@/src/store/types";
+import { logout } from "@/src/store/authSlice";
+import { RootState } from "@/src/store/store";
 
 const SettingsScreen = () => {
   const [restaurantName, setRestaurantName] = useState("My Restaurant");
@@ -22,7 +25,9 @@ const SettingsScreen = () => {
   const [contact, setContact] = useState("0123456789");
   const [avatar, setAvatar] = useState<string | null>(null);
   const [isOpenmodal, setIsOpenModal] = useState(false);
+  const dispatch = useDispatch()
 
+  const RestaurantAvatar = useSelector((state:RootState) => state.auth.avatar);
 
   const handleSelectAvatar = async () => {
     const permissionResult =
@@ -54,7 +59,7 @@ const SettingsScreen = () => {
           {avatar ? (
             <FFAvatar avatar={avatar} onPress={handleSelectAvatar} />
           ) : (
-            <FFAvatar onPress={handleSelectAvatar} />
+            <FFAvatar avatar={RestaurantAvatar?.url} onPress={handleSelectAvatar} />
           )}
         </TouchableOpacity>
       </View>
@@ -73,6 +78,13 @@ const SettingsScreen = () => {
         }}
       >
         Confirm
+      </FFButton>
+      <FFButton variant="danger"
+      className="mt-4 w-full  "
+        onPress={() =>dispatch(logout())
+        }
+      >
+        logvout
       </FFButton>
 
       <FFModal

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  StackNavigationProp,
+} from "@react-navigation/stack";
 import {
   createBottomTabNavigator,
   BottomTabNavigationProp,
@@ -17,11 +20,24 @@ import OrderScreen from "../app/screens/Order";
 import SettingsScreen from "../app/screens/SettingsScreen";
 import MenuManagement from "../app/screens/MenuManagement";
 
+import RestaurantDetail from "@/screens/RestaurantDetailScreen";
+import CheckoutScreen from "@/screens/CheckoutScreen";
+import ProfileScreen from "@/screens/ProfileScreen";
+import { Order } from "../types/Orders";
+import * as Notifications from "expo-notifications";
 
 // Import your custom FFBottomTab
 import FFBottomTab from "../components/FFBottomTab";
 import PromotionManagement from "../app/screens/PromotionList";
 import CustomerFeedback from "../app/screens/CustomerFeedback";
+import useSearchNearbyDrivers from "../hooks/useSearchNearbyDrivers";
+import { useSocket } from "../hooks/useSocket";
+import { Type_PushNotification_Order } from "../types/pushNotification";
+import FFToast from "../components/FFToast";
+import FFText from "../components/FFText";
+import Spinner from "../components/FFSpinner";
+import { usePushNotifications } from "../hooks/usePushNotifications";
+import { sendPushNotification } from "../utils/functions/pushNotification";
 
 // Define the param lists for the navigators
 export type RootStackParamList = {
@@ -88,25 +104,69 @@ const BottomTabs = () => {
 };
 
 // MainStack component
-const MainStackScreen = () => (
-  <MainStack.Navigator>
-    <MainStack.Screen
-      options={{ headerShown: false }}
-      name="BottomTabs"
-      component={BottomTabs}
-    />
-    <MainStack.Screen
-      options={{ headerShown: false }}
-      name="Promotions"
-      component={PromotionManagement}
-    />
-    <MainStack.Screen
-      options={{ headerShown: false }}
-      name="CustomerFeedback"
-      component={CustomerFeedback}
-    />
-  </MainStack.Navigator>
-);
+const MainStackScreen = () => {
+  const [selectedLocation, setSelectedLocation] = useState({
+    lat: 10.826411,
+    lng: 106.617353,
+  });
+  const { restaurant_id } = useSelector((state: RootState) => state.auth);
+
+  // const { nearbyDrivers, allDrivers } = useSearchNearbyDrivers({
+  //   selectedLocation,
+  //   tomtomKey: "7zmNwV5XQGs5II7Z7KxIp9K551ZlFAwV",
+  //   isCaptureDriverOnlyThisMoment: true,
+  // });
+  // console.log(nearbyDrivers, allDrivers);
+
+  const [orders, setOrders] = useState<Type_PushNotification_Order[]>([]);
+  const [isShowIncomingOrderToast, setIsShowIncomingOrderToast] =
+    useState(false);
+  useEffect(() => {
+    // console.log('================ords', orders)
+    if (orders.length > 0) {
+      setIsShowIncomingOrderToast(true);
+      sendPushNotification(orders[orders.length - 1]);
+    }
+  }, [orders]);
+  useSocket(restaurant_id || "", setOrders, sendPushNotification);
+  // const { nearbyDrivers } = useSearchNearbyDrivers({
+  //   selectedLocation,
+  //   tomtomKey: "e73LfeJGmk0feDJtiyifoYWpPANPJLhT",
+  //   isCaptureDriverOnlyThisMoment: true,
+  // });
+  // console.log("cejck new by", nearbyDrivers);
+
+  return (
+    <>
+      <MainStack.Navigator>
+        <MainStack.Screen
+          options={{ headerShown: false }}
+          name="BottomTabs"
+          component={BottomTabs}
+        />
+        <MainStack.Screen
+          options={{ headerShown: false }}
+          name="Promotions"
+          component={PromotionManagement}
+        />
+        <MainStack.Screen
+          options={{ headerShown: false }}
+          name="CustomerFeedback"
+          component={CustomerFeedback}
+        />
+      </MainStack.Navigator>
+      {/* FFToast logic is commented for now */}
+      <FFToast
+        disabledClose
+        onClose={() => setIsShowIncomingOrderToast(false)}
+        visible={isShowIncomingOrderToast}
+        isApproveToast
+      >
+        <FFText>New Order</FFText>
+      </FFToast>
+    </>
+  );
+};
 
 // AuthStack component
 const AuthStackScreen = () => (
@@ -124,35 +184,14 @@ const AuthStackScreen = () => (
   </AuthStack.Navigator>
 );
 
-// AppNavigator component
 const AppNavigator = () => {
   const token = useSelector((state: RootState) => state.auth.accessToken);
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadToken = async () => {
-      await dispatch(loadTokenFromAsyncStorage());
-      setLoading(false);
-    };
-    loadToken();
-  }, [dispatch]);
-
-  if (loading) {
-    return null; // Loading state, can show a loading spinner if needed
-  }
-
   return (
-    <RootStack.Navigator initialRouteName={token ? "Main" : "Main"}>
+    <RootStack.Navigator>
       <RootStack.Screen
-        name="Auth"
+        name={token ? "Main" : "Auth"}
         options={{ headerShown: false }}
-        component={AuthStackScreen}
-      />
-      <RootStack.Screen
-        name="Main"
-        options={{ headerShown: false }}
-        component={MainStackScreen}
+        component={token ? MainStackScreen : AuthStackScreen}
       />
     </RootStack.Navigator>
   );

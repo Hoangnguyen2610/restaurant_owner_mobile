@@ -10,6 +10,8 @@ import FFAvatar from "@/src/components/FFAvatar";
 import PromotionManagement from "./PromotionList";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MainStackParamList } from "@/src/navigation/AppNavigator";
+import { useSelector } from "@/src/store/types";
+import { RootState } from "@/src/store/store";
 
 type HomeNavigationProps = StackNavigationProp<
   MainStackParamList,
@@ -30,7 +32,7 @@ const HomeScreen = () => {
     return "Good evening";
   };
 
-  const restaurantName = "Restaurant ABC";
+  const {avatar,restaurant_name,opening_hours}  = useSelector((state: RootState) => state.auth);
 
   return (
     <FFSafeAreaView style={{ flex: 1, backgroundColor: "#f2f2f2" }}>
@@ -43,12 +45,12 @@ const HomeScreen = () => {
           alignItems: "center",
         }}
       >
-        <FFAvatar size={50} />
+        <FFAvatar size={50} avatar={avatar?.url} />
         <View style={{ marginLeft: 12 }}>
           <FFText style={{ fontSize: 18, fontWeight: "bold" }}>
             {getGreeting()},
           </FFText>
-          <FFText style={{ fontSize: 16 }}>{restaurantName}</FFText>
+          <FFText style={{ fontSize: 16 }}>{restaurant_name} </FFText>
         </View>
       </View>
 

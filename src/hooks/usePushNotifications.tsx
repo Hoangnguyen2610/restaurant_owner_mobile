@@ -11,6 +11,7 @@ export interface PushNotificationState {
 }
 
 export const usePushNotifications = (): PushNotificationState => {
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldPlaySound: false,
@@ -18,9 +19,13 @@ export const usePushNotifications = (): PushNotificationState => {
       shouldSetBadge: true,
     }),
   });
+  
+
   const [expoPushToken, setExpoPushToken] = useState<
-    Notifications.ExpoPushToken | undefined
-  >();
+  Notifications.ExpoPushToken | undefined
+  >(undefined);
+  
+
   const [notifications, setNotifications] = useState<
     Notifications.Notification | undefined
   >();
@@ -30,6 +35,7 @@ export const usePushNotifications = (): PushNotificationState => {
 
   async function registerForPushNotificationAsync() {
     let token;
+
     if (Device.isDevice) {
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
@@ -38,14 +44,15 @@ export const usePushNotifications = (): PushNotificationState => {
         const { status } = await Notifications.getPermissionsAsync();
         finalStatus = status;
       }
+
       if (finalStatus !== "granted") {
         alert("Failed to get push token");
       }
+
       token = await Notifications.getExpoPushTokenAsync({
         projectId: Constants.expoConfig?.extra?.eas?.projectId,
       });
-
-      console.log("Received Expo Push Token:", token?.data); // Add this log
+      
 
       if (Platform.OS === "android") {
         Notifications.setNotificationChannelAsync("default", {
@@ -55,6 +62,7 @@ export const usePushNotifications = (): PushNotificationState => {
           lightColor: "#ff231f7c",
         });
       }
+      
       return token;
     } else {
       console.log("ERROR, Please use a physical device");
