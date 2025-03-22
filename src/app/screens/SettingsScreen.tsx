@@ -15,15 +15,25 @@ import FFAvatar from "@/src/components/FFAvatar";
 import FFModal from "@/src/components/FFModal";
 import FFText from "@/src/components/FFText";
 import FFInputControl from "@/src/components/FFInputControl";
+import { logout } from "@/src/store/authSlice";
+import { useDispatch } from "@/src/store/types";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@/src/navigation/AppNavigator";
+
+type SettingScreenNavigationProps = StackNavigationProp<
+  RootStackParamList,
+  "Main"
+>;
 
 const SettingsScreen = () => {
+  const dispatch = useDispatch();
   const [restaurantName, setRestaurantName] = useState("My Restaurant");
   const [address, setAddress] = useState("123 Main Street");
   const [contact, setContact] = useState("0123456789");
   const [avatar, setAvatar] = useState<string | null>(null);
   const [isOpenmodal, setIsOpenModal] = useState(false);
-
-
+  const navigation = useNavigation<SettingScreenNavigationProps>();
   const handleSelectAvatar = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -59,20 +69,46 @@ const SettingsScreen = () => {
         </TouchableOpacity>
       </View>
       <View className="gap-4 my-4">
-      <FFInputControl error='' label="Restaurant Name" placeholder="" setValue={()=>{}} value=''/>
-      <FFInputControl error='' label="Address" placeholder="" setValue={()=>{}} value=""/>
-      <FFInputControl error='' label="Email" placeholder="" setValue={()=>{}} value=""/>
+        <FFInputControl
+          error=""
+          label="Restaurant Name"
+          placeholder=""
+          setValue={() => {}}
+          value=""
+        />
+        <FFInputControl
+          error=""
+          label="Address"
+          placeholder=""
+          setValue={() => {}}
+          value=""
+        />
+        <FFInputControl
+          error=""
+          label="Email"
+          placeholder=""
+          setValue={() => {}}
+          value=""
+        />
       </View>
-    
-
 
       <FFButton
-      className="mt-4 w-full "
+        className="mt-4 w-full "
         onPress={() => {
           setIsOpenModal(true);
         }}
       >
         Confirm
+      </FFButton>
+
+      <FFButton
+        className="mt-4 w-full "
+        onPress={() => {
+          dispatch(logout());
+          navigation.navigate("Auth");
+        }}
+      >
+        logout
       </FFButton>
 
       <FFModal
